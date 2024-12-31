@@ -1,6 +1,6 @@
 [package]
 name = "healthy-monitor"
-version = "0.1.0"
+version = "0.1.1"
 edition = "2021"
 description = "Automatically adjust monitor brightness and color temperature based on ambient light or weather"
 authors = ["Patrik Cihal <patrik.cihal1234@gmail.com>"]
