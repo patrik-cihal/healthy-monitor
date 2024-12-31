@@ -1,0 +1,21 @@
+[package]
+name = "healthy-monitor"
+version = "0.1.0"
+edition = "2021"
+description = "Automatically adjust monitor brightness and color temperature based on ambient light or weather"
+authors = ["Patrik Cihal <patrik.cihal1234@gmail.com>"]
+license = "MIT"
+repository = "https://github.com/patrik-cihal/healthy-monitor"
+keywords = ["monitor", "brightness", "automation", "xrandr", "linux"]
+categories = ["command-line-utilities"]
+
+[dependencies]
+chrono = "0.4"
+serde = { version = "1.0", features = ["derive"] }
+tokio = { version = "1.0", features = ["full"] }
+nokhwa = { version = "0.10", features = ["input-native"] }
+reqwest = { version = "0.12.12", features = ["json"] }
+dotenv = "0.15"
+lazy_static = "1.4"
+serde_json = "1.0"
+clap = { version = "4.4", features = ["derive", "env"] }
