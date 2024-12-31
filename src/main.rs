@@ -15,9 +15,9 @@ use dotenv::dotenv;
 #[derive(Parser, Debug)]
 #[command(author, version, about, long_about = None)]
 struct Args {
-    /// OpenWeather API key for weather data
-    #[arg(long, env("OPEN_WEATHER_API_KEY"))]
-    api_key: String,
+    /// OpenWeather API key for weather data (required only if webcam is not available)
+    #[arg(long)]
+    api_key: Option<String>,
 
     /// Minimum brightness level (0.0 to 1.0)
     #[arg(long, default_value_t = 0.6)]
@@ -78,12 +78,15 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Err(e) => {
             eprintln!("Webcam not available ({}), falling back to weather API", e);
             
+            // Check if API key is provided when falling back to weather API
+            let api_key = args.api_key.clone().ok_or("OpenWeather API key is required when webcam is not available")?;
+            
             // Fall back to weather API
             let location = fetch_location().await?;
             let lat = location.lat.to_string();
             let lon = location.lon.to_string();
 
-            match fetch_weather(&lat, &lon, &args.api_key).await {
+            match fetch_weather(&lat, &lon, &api_key).await {
                 Ok(weather_data) => {
                     let brightness = compute_brightness(&weather_data, args.min_brightness);
                     if let Err(e) = set_monitor_brightness(brightness, &args) {

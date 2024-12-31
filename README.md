@@ -26,7 +26,12 @@ cargo install healthy-monitor
 
 ## Usage
 
-Run the application with your OpenWeather API key:
+Basic usage (using webcam):
+```bash
+healthy-monitor
+```
+
+If webcam is not available, provide OpenWeather API key:
 ```bash
 healthy-monitor --api-key YOUR_API_KEY
 ```
@@ -34,10 +39,10 @@ healthy-monitor --api-key YOUR_API_KEY
 ### Command Line Options
 
 ```bash
-healthy-monitor [OPTIONS] --api-key <API_KEY>
+healthy-monitor [OPTIONS]
 
 Options:
-    --api-key <API_KEY>            OpenWeather API key for weather data [env: OPEN_WEATHER_API_KEY]
+    --api-key <API_KEY>            OpenWeather API key (required only if webcam is not available)
     --min-brightness <FLOAT>       Minimum brightness level (0.0 to 1.0) [default: 0.6]
     --day-temp <FLOAT>            Color temperature during day in Kelvin [default: 6500]
     --night-temp <FLOAT>          Color temperature during night in Kelvin [default: 3500]
@@ -49,25 +54,23 @@ Options:
 
 ### Examples
 
-1. Basic usage with just API key:
+1. Basic usage with webcam:
 ```bash
-healthy-monitor --api-key YOUR_API_KEY
+healthy-monitor
 ```
 
-2. Custom brightness and monitors:
+2. Custom brightness and monitors (with webcam):
 ```bash
 healthy-monitor \
-    --api-key YOUR_API_KEY \
     --min-brightness 0.4 \
     --monitors "HDMI-1,DP-1"
 ```
 
-3. Custom color temperatures:
+3. Using weather API (when webcam is unavailable):
 ```bash
 healthy-monitor \
     --api-key YOUR_API_KEY \
-    --day-temp 7000 \
-    --night-temp 2700
+    --min-brightness 0.4
 ```
 
 ### Automatic Execution with Crontab
@@ -87,14 +90,14 @@ crontab -e
 3. Add one of these example configurations:
 
 ```bash
-# Run every 5 minutes
+# Run every 5 minutes (with webcam)
+*/5 * * * * DISPLAY=:0 /path/to/healthy-monitor
+
+# Run every 5 minutes (with weather API fallback)
 */5 * * * * DISPLAY=:0 /path/to/healthy-monitor --api-key YOUR_API_KEY
 
-# Run every 10 minutes during daytime (7 AM to 10 PM)
-*/10 7-22 * * * DISPLAY=:0 /path/to/healthy-monitor --api-key YOUR_API_KEY
-
-# Run every 30 minutes with custom settings
-*/30 * * * * DISPLAY=:0 /path/to/healthy-monitor --api-key YOUR_API_KEY --min-brightness 0.4 --monitors "HDMI-1,DP-1"
+# Run every 10 minutes during daytime with custom settings
+*/10 7-22 * * * DISPLAY=:0 /path/to/healthy-monitor --min-brightness 0.4 --monitors "HDMI-1,DP-1"
 ```
 
 Note: 
