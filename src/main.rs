@@ -36,8 +36,8 @@ struct Args {
     transition_hours: f64,
 
     /// Comma-separated list of monitor names (e.g., "DP-0,HDMI-0")
-    #[arg(long, value_delimiter = ',', default_value = "DP-0,HDMI-0")]
-    monitors: Vec<String>,
+    #[arg(long, value_delimiter = ',')]
+    monitors: Option<Vec<String>>,
 }
 
 #[derive(Debug, Deserialize)]
@@ -155,6 +155,11 @@ fn compute_brightness(weather: &WeatherApiResponse, min_brightness: f64) -> f64 
 
 /// Sets brightness and color temperature for monitors using xrandr
 fn set_monitor_brightness(brightness: f64, args: &Args) -> Result<(), Box<dyn std::error::Error>> {
+    let monitors = match &args.monitors {
+        Some(m) => m.clone(),
+        None => detect_monitors()?
+    };
+
     let now_utc: DateTime<Utc> = Utc::now();
     let now_local = now_utc.with_timezone(&chrono::Local);
     let hour = now_local.hour() as f64 + (now_local.minute() as f64 / 60.0);
@@ -170,7 +175,7 @@ fn set_monitor_brightness(brightness: f64, args: &Args) -> Result<(), Box<dyn st
 
     let (r_gamma, g_gamma, b_gamma) = temp_to_gamma(color_temp);
 
-    for monitor in &args.monitors {
+    for monitor in &monitors {
         match Command::new("xrandr")
             .args(&[
                 "--output", monitor,
@@ -260,4 +265,32 @@ fn detect_brightness_from_webcam(min_brightness: f64) -> Result<f64, Box<dyn std
     let screen_brightness = min_brightness + (clamped_brightness * (1.0 - min_brightness));
 
     Ok(screen_brightness)
+}
+
+/// Detect available monitors using xrandr
+fn detect_monitors() -> Result<Vec<String>, Box<dyn std::error::Error>> {
+    let output = Command::new("xrandr")
+        .arg("--listmonitors")
+        .output()?;
+
+    if !output.status.success() {
+        return Err("Failed to execute xrandr --listmonitors".into());
+    }
+
+    let output_str = String::from_utf8(output.stdout)?;
+    let monitors: Vec<String> = output_str
+        .lines()
+        .skip(1)  // Skip the first line (contains count)
+        .filter_map(|line| {
+            line.split_whitespace()
+                .last()
+                .map(String::from)
+        })
+        .collect();
+
+    if monitors.is_empty() {
+        return Err("No monitors detected".into());
+    }
+
+    Ok(monitors)
 }
