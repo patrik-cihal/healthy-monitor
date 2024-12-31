@@ -42,7 +42,7 @@ Options:
     --day-temp <FLOAT>            Color temperature during day in Kelvin [default: 6500]
     --night-temp <FLOAT>          Color temperature during night in Kelvin [default: 3500]
     --transition-hours <FLOAT>     Hours before sunset to start transitioning [default: 2.0]
-    --monitors <MONITORS>          Comma-separated list of monitor names [default: "DP-0,HDMI-0"]
+    --monitors <MONITORS>          Comma-separated list of monitor names [default: autodetect]
     -h, --help                     Print help
     -V, --version                  Print version
 ```
